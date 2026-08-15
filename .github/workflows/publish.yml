@@ -1,0 +1,70 @@
+name: Publish uploaded photos
+
+# Someone drops full-size photographs into incoming/<gallery>/ using the GitHub
+# website. This job resizes them, adds them to the gallery, and removes the
+# originals — then Netlify redeploys from the resulting commit.
+on:
+  push:
+    paths:
+      - "incoming/**"                    # new photos uploaded
+      - "galleries/*/manifest.json"      # a photo removed, reordered or captioned
+  workflow_dispatch:        # lets you re-run it by hand from the Actions tab
+
+# The job pushes a commit back to the branch, so it needs write access.
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-photos
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Without this guard the commit made below would re-trigger this same
+    # workflow — it deletes files under incoming/, which matches the path
+    # filter above.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v4
+        with:
+          # Full history is 250 MB of old photographs and nothing here needs
+          # it; a shallow clone keeps the job fast.
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow
+        run: pip install --disable-pip-version-check "Pillow>=10,<14"
+
+      # ingest handles newly uploaded photos; rebuild regenerates every gallery
+      # page from its manifest, which is what picks up a removal, a reorder or
+      # a new caption. Both are safe to run when there is nothing to do.
+      - name: Resize any uploaded photos
+        run: python tools/build_gallery.py ingest
+
+      - name: Rebuild the gallery pages
+        run: python tools/build_gallery.py rebuild
+
+      - name: Commit the result
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Nothing changed — no photos were waiting."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          # Do NOT put [skip ci] in this message. It stops this workflow
+          # re-triggering itself, but Netlify honours the same token and would
+          # skip the deploy — the photos would land in the repository and never
+          # reach the website. The loop is already prevented twice over: by the
+          # actor guard on this job, and by GitHub itself, which does not start
+          # new workflow runs for pushes made with GITHUB_TOKEN.
+          git commit -m "Update galleries"
+          git push

@@ -1,0 +1,78 @@
+Copyright (c) 2026 Yekaterina Lomako
+
+This repository contains two different kinds of work, and they are licensed
+differently. Read both sections before reusing anything.
+
+
+===============================================================================
+1. SOURCE CODE — MIT License
+===============================================================================
+
+Applies to the website's source: HTML, CSS, JavaScript, the Python tooling in
+tools/, the GitHub Actions workflow, and the configuration files. In short,
+everything in this repository EXCEPT the photographic and image content
+described in section 2.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+===============================================================================
+2. PHOTOGRAPHS AND IMAGES — All rights reserved
+===============================================================================
+
+Applies to:
+
+    galleries/**/images/**      the photographs
+    assets/img/**               site imagery
+    incoming/**                 any photograph placed here awaiting processing
+                                (the README.txt notes in those folders are code
+                                under section 1)
+
+These are NOT covered by the MIT License above.
+
+The photographs are Copyright (c) Yekaterina Lomako. All rights reserved. They
+are published here so they can be displayed on rinalomako.com and for no other
+purpose. They may not be copied, redistributed, modified, used to train machine
+learning models, or used commercially without written permission.
+
+The fact that this repository is public does not place the photographs in the
+public domain.
+
+For licensing enquiries, see the contact page at https://rinalomako.com/contact/
+
+
+===============================================================================
+3. THIRD-PARTY COMPONENTS
+===============================================================================
+
+assets/js/smoke.js
+    WebGL Fluid Simulation, Copyright (c) 2017 Pavel Dobryakov.
+    MIT License. The full notice is reproduced in the file header.
+    https://github.com/PavelDoGreat/WebGL-Fluid-Simulation
+
+assets/img/moon.webp
+    Generated with Midjourney. Not covered by the MIT grant in section 1.
+    Midjourney licenses output generated on its free tier under Creative
+    Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0);
+    paid-tier output is owned by the subscriber. The tier this image was
+    generated on has not been confirmed, so it is treated as CC BY-NC 4.0
+    and reserved rather than offered under the MIT License.
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+No web fonts, CDN scripts, or other external dependencies are used.

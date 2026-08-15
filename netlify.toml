@@ -1,0 +1,73 @@
+# Netlify configuration for rinalomako.com
+#
+# The site is plain static HTML — there is no build step, so Netlify simply
+# publishes the repository root as-is. Keeping this file in the repo means the
+# configuration is versioned rather than living only in the Netlify dashboard.
+
+[build]
+  publish = "."
+  command = ""
+
+# Long-lived caching for the generated photo derivatives. Their filenames carry
+# the pixel width and are never rewritten in place — a changed photo gets a new
+# name — so they are safe to cache hard.
+[[headers]]
+  for = "/galleries/*/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Never serve the upload folder. Netlify publishes the repository root, so
+# without this the full-resolution originals waiting to be processed are
+# downloadable from the live site — a few minutes of exposure per upload, and
+# squarely against the rights reserved on the photographs in LICENSE.
+# force = true is essential here. Netlify only applies a redirect when no real
+# file matches the path, so without it the uploaded photograph is served as a
+# static file and this rule never fires.
+[[redirects]]
+  from = "/incoming/*"
+  to = "/"
+  status = 404
+  force = true
+
+# The old gallery URLs were live and may be linked from elsewhere. Send them to
+# the pages that now hold those photographs rather than to a 404.
+[[redirects]]
+  from = "/galleries/dark-places/*"
+  to = "/galleries/black-and-white/"
+  status = 301
+
+[[redirects]]
+  from = "/galleries/what-doesnt-leave/*"
+  to = "/galleries/black-and-white/"
+  status = 301
+
+[[redirects]]
+  from = "/galleries/split-second-ordinary/*"
+  to = "/galleries/black-and-white/"
+  status = 301
+
+[[redirects]]
+  from = "/galleries/bright-places/*"
+  to = "/galleries/colours-street/"
+  status = 301
+
+[[redirects]]
+  from = "/galleries/shades-of-snow/*"
+  to = "/galleries/colours-street/"
+  status = 301
+
+[[redirects]]
+  from = "/galleries/people/*"
+  to = "/galleries/portraits/"
+  status = 301
+
+# The contacts page was renamed to the singular.
+[[redirects]]
+  from = "/contacts/*"
+  to = "/contact/"
+  status = 301

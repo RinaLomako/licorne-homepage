@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Yekaterina Lomako — Photography</title>
+  <meta name="description" content="Photography by Yekaterina Lomako. Black and white, colour and street, portraits." />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" as="image" href="/assets/img/moon.webp" />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <style>
+    /* Only the homepage needs the backdrop, so it lives here rather than in
+       the shared stylesheet. */
+    .splash { background-image: url("/assets/img/moon.webp"); }
+  </style>
+</head>
+<body class="home">
+  <header class="site-header">
+    <a class="brand" href="/">Yekaterina Lomako</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav"
+            aria-label="Menu"><span></span><span></span><span></span></button>
+    <nav class="nav" id="nav">
+      <a href="/galleries/black-and-white/">Black &amp; White</a>
+      <a href="/galleries/colours-street/">Colours / Street</a>
+      <a href="/galleries/portraits/">Portraits</a>
+      <a href="/about/">About</a>
+      <a href="/contact/">Contact</a>
+    </nav>
+  </header>
+
+  <section class="splash" aria-label="Moon">
+    <!-- The width/height attributes are a fallback, not the display size (CSS
+         stretches it to fill). They guarantee a non-zero drawing buffer if the
+         script runs before the external stylesheet has been applied — without
+         them the simulation initialises against a 0x0 canvas and every
+         framebuffer fails. resizeCanvas() corrects to the real size on the
+         first animation frame. -->
+    <canvas id="smoke-canvas" width="1600" height="900"></canvas>
+    <div class="splash-inner">
+      <h1>Yekaterina Lomako</h1>
+      <p class="tagline">Photographer &middot; Paris</p>
+      <!-- Two wordings for the same gesture; CSS shows whichever suits the
+           input device. "Press space" is meaningless on a phone, and "drag a
+           finger" is meaningless with a mouse. -->
+      <p class="hint">
+        <span class="hint-pointer">Click and drag through the dust &mdash; or press space</span>
+        <span class="hint-touch">Drag a finger through the dust</span>
+      </p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <span class="muted small">&copy; Yekaterina Lomako <span data-year></span></span>
+  </footer>
+
+  <script src="/assets/js/site.js" defer></script>
+  <script src="/assets/js/smoke.js" defer></script>
+</body>
+</html>

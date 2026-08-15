@@ -1,0 +1,18 @@
+# Documentation is kept off the public repository on purpose. The maintenance
+# and hand-off guides live alongside it, one level up, and are shared directly
+# with whoever needs them.
+README.md
+HANDOFF.md
+MAINTENANCE.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Logs
+*.log

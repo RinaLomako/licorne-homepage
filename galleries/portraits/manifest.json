@@ -1,0 +1,67 @@
+[
+  {
+    "id": "001",
+    "width": 2804,
+    "height": 4206,
+    "widths": [
+      400,
+      800,
+      1600,
+      2560
+    ],
+    "alt": "Portraits \u2014 001",
+    "caption": ""
+  },
+  {
+    "id": "002",
+    "width": 4440,
+    "height": 6660,
+    "widths": [
+      400,
+      800,
+      1600,
+      2560
+    ],
+    "alt": "Portraits \u2014 002",
+    "caption": ""
+  },
+  {
+    "id": "003",
+    "width": 2799,
+    "height": 4198,
+    "widths": [
+      400,
+      800,
+      1600,
+      2560
+    ],
+    "alt": "Portraits \u2014 003",
+    "caption": ""
+  },
+  {
+    "id": "004",
+    "width": 11320,
+    "height": 7547,
+    "widths": [
+      400,
+      800,
+      1600,
+      2560
+    ],
+    "alt": "Portraits \u2014 004",
+    "caption": ""
+  },
+  {
+    "id": "005",
+    "width": 6757,
+    "height": 4505,
+    "widths": [
+      400,
+      800,
+      1600,
+      2560
+    ],
+    "alt": "Portraits \u2014 005",
+    "caption": ""
+  }
+]
