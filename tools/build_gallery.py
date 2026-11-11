@@ -42,11 +42,10 @@ GRID_WIDTHS = (400, 800, 1600)
 FULL_WIDTH = 2560
 QUALITY = 82
 
-GALLERIES = {
-    "black-and-white": "Black & White",
-    "colours-street": "Colours / Street",
-    "portraits": "Portraits",
-}
+# One set. The website shows a single gallery, so asking which category a
+# photograph belongs to was a choice with no consequence -- the three former
+# sets appeared nowhere a visitor could see.
+GALLERY = "photos"
 
 # Files that are never photographs, whatever else turns up in an upload folder.
 IGNORE_NAMES = {"readme.txt", ".gitkeep", ".ds_store", "thumbs.db", "unreadable.txt"}
@@ -123,18 +122,18 @@ def write_derivatives(src: Path, out_dir: Path, stem: str, force: bool = False) 
 
 # --- manifests ---------------------------------------------------------------
 
-def manifest_path(gallery: str) -> Path:
+def manifest_path(gallery: str = GALLERY) -> Path:
     return REPO / "galleries" / gallery / "manifest.json"
 
 
-def read_manifest(gallery: str) -> list[dict]:
+def read_manifest(gallery: str = GALLERY) -> list[dict]:
     p = manifest_path(gallery)
     if not p.exists():
         return []
     return json.loads(p.read_text())
 
 
-def write_manifest(gallery: str, entries: list[dict]) -> None:
+def write_manifest(entries: list[dict], gallery: str = GALLERY) -> None:
     p = manifest_path(gallery)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(entries, indent=2) + "\n")
@@ -149,7 +148,7 @@ def next_id(entries: list[dict]) -> int:
 
 ORDER_FILE = REPO / "order.txt"
 CLOUD_COLUMNS = 2
-ENTRY_RE = __import__("re").compile(r"^([a-z0-9-]+)/(\d+)$")
+ENTRY_RE = __import__("re").compile(r"^(\d+)$")
 
 
 def read_order() -> tuple[list[str], set[str]]:
@@ -184,34 +183,28 @@ def read_order() -> tuple[list[str], set[str]]:
 
 def ordered_photos() -> list[dict]:
     """Every photograph on the site, in the order order.txt asks for."""
-    by_key: dict[str, dict] = {}
-    for gallery in GALLERIES:
-        for e in read_manifest(gallery):
-            e = dict(e, gallery=gallery, key=f"{gallery}/{e['id']}")
-            by_key[e["key"]] = e
-
+    by_id = {e["id"]: e for e in read_manifest()}
     wanted, hidden = read_order()
 
-    out: list[dict] = []
-    seen: set[str] = set()
+    out, seen = [], set()
     for k in wanted:
         if k in hidden or k in seen:
             continue
-        if k in by_key:
-            out.append(by_key[k]); seen.add(k)
+        if k in by_id:
+            out.append(by_id[k]); seen.add(k)
         else:
             print(f"  order.txt: no such photograph {k!r}", file=sys.stderr)
 
     # A photograph the file never mentions is still shown, at the end, so a new
     # upload is never invisible. One deliberately hidden is not.
-    for k, e in by_key.items():
+    for k, e in by_id.items():
         if k not in seen and k not in hidden:
             out.append(e)
     return out
 
 
 def cloud_figure(e: dict) -> str:
-    base = f"/galleries/{e['gallery']}/images"
+    base = f"/galleries/{GALLERY}/images"
     stem = e["id"]
     grid = [w for w in e["widths"] if w <= 1600] or [max(e["widths"])]
     srcset = ", ".join(f"{base}/{derivative_name(stem, w)} {w}w" for w in grid)
@@ -296,35 +289,27 @@ def write_cloud_page() -> None:
 # --- commands ----------------------------------------------------------------
 
 def cmd_ingest(args) -> int:
-    incoming = REPO / "incoming"
+    """Process whatever is waiting in incoming/."""
+    src_dir = REPO / "incoming"
     total = 0
     rejected: list[str] = []
 
-    for gallery in GALLERIES:
-        src_dir = incoming / gallery
-        if not src_dir.is_dir():
-            continue
+    candidates = sorted(
+        f for f in src_dir.iterdir()
+        if f.is_file()
+        and f.name.lower() not in IGNORE_NAMES
+        and not f.name.startswith(".")
+    ) if src_dir.is_dir() else []
 
-        candidates = sorted(
-            f for f in src_dir.iterdir()
-            if f.is_file()
-            and f.name.lower() not in IGNORE_NAMES
-            and not f.name.startswith(".")
-        )
-        photos = [f for f in candidates if is_photograph(f)]
+    photos = [f for f in candidates if is_photograph(f)]
 
-        # Anything left over is something this tool cannot read. It stays where
-        # it is and gets named in the report, rather than being passed over in
-        # silence.
-        for f in candidates:
-            if f not in photos:
-                rejected.append(f"incoming/{gallery}/{f.name}")
+    # Anything left over is something this tool cannot read. It stays where it
+    # is and gets named in the report, rather than being passed over in silence.
+    rejected = [f"incoming/{f.name}" for f in candidates if f not in photos]
 
-        if not photos:
-            continue
-
-        entries = read_manifest(gallery)
-        out_dir = REPO / "galleries" / gallery / "images"
+    if photos:
+        entries = read_manifest()
+        out_dir = REPO / "galleries" / GALLERY / "images"
         out_dir.mkdir(parents=True, exist_ok=True)
         n = next_id(entries)
 
@@ -332,18 +317,19 @@ def cmd_ingest(args) -> int:
             stem = f"{n:03d}"
             try:
                 entry = write_derivatives(photo, out_dir, stem, force=args.force)
-            except Exception as exc:                      # noqa: BLE001
+            except Exception as exc:                        # noqa: BLE001
                 print(f"  SKIPPED {photo.name}: {exc}", file=sys.stderr)
+                rejected.append(f"incoming/{photo.name}")
                 continue
-            entry["alt"] = f"{GALLERIES[gallery]} — {photo.stem}"
+            entry["alt"] = ""
             entries.append(entry)
-            print(f"  {gallery}/{stem}  <- {photo.name}  ({entry['width']}x{entry['height']})")
+            print(f"  {stem}  <- {photo.name}  ({entry['width']}x{entry['height']})")
             if not args.keep:
                 photo.unlink()
             n += 1
             total += 1
 
-        write_manifest(gallery, entries)
+        write_manifest(entries)
 
     write_cloud_page()
 
@@ -351,7 +337,7 @@ def cmd_ingest(args) -> int:
     if rejected:
         report.write_text(
             "These uploads could not be read as photographs, so they are NOT on\n"
-            "the website. They are still in their upload folder.\n\n"
+            "the website. They are still in the incoming folder.\n\n"
             + "".join(f"  {r}\n" for r in rejected)
             + "\nUsually the file is damaged, or is not an image at all (a video,\n"
               "a PDF, a .zip). Re-export it from Photos or Lightroom and upload it\n"
@@ -361,76 +347,30 @@ def cmd_ingest(args) -> int:
         for r in rejected:
             print(f"   {r}", file=sys.stderr)
     elif report.exists():
-        report.unlink()          # previous problem is resolved
+        report.unlink()
 
     print(f"ingested {total} photo(s)")
     # Exit 0 even when something was rejected, so the photographs that *did*
-    # work still get committed and published. The workflow checks for the
-    # report afterwards and fails the run then, which keeps the red cross
-    # without holding the good uploads hostage.
+    # work still get committed. The workflow checks for the report afterwards.
     return 0
 
 
 def cmd_rebuild(args) -> int:
-    for gallery in GALLERIES:
-        entries = read_manifest(gallery)
+    entries = read_manifest()
 
-        # Drop derivatives no longer referenced by the manifest. This is what
-        # makes removing a photograph work: delete its entry from manifest.json
-        # and its image files go with it on the next rebuild.
-        wanted = {
-            derivative_name(e["id"], w)
-            for e in entries
-            for w in e["widths"]
-        }
-        images = REPO / "galleries" / gallery / "images"
-        removed = 0
-        if images.is_dir():
-            for f in images.iterdir():
-                if f.is_file() and f.suffix == ".webp" and f.name not in wanted:
-                    f.unlink()
-                    removed += 1
-        note = f", pruned {removed} orphaned file(s)" if removed else ""
-        print(f"  {gallery}: {len(entries)} photos{note}")
+    # Drop derivatives no longer referenced by the manifest: deleting a
+    # photograph's entry takes its image files with it.
+    wanted = {derivative_name(e["id"], w) for e in entries for w in e["widths"]}
+    images = REPO / "galleries" / GALLERY / "images"
+    removed = 0
+    if images.is_dir():
+        for f in images.iterdir():
+            if f.is_file() and f.suffix == ".webp" and f.name not in wanted:
+                f.unlink(); removed += 1
 
     write_cloud_page()
-    print(f"  rebuilt gallery/index.html ({len(ordered_photos())} photographs)")
-    return 0
-
-
-def cmd_import_legacy(args) -> int:
-    """Build the three new galleries from the old six, using a mapping file."""
-    rows = json.loads(Path(args.mapping).read_text())
-    base = REPO.parent          # website_licorne/, where data/ lives
-
-    buckets: dict[str, list[dict]] = {g: [] for g in GALLERIES}
-    for row in rows:
-        if row["gallery_old"] == "people":
-            buckets["portraits"].append(row)
-        elif row["is_bw"]:
-            buckets["black-and-white"].append(row)
-        else:
-            buckets["colours-street"].append(row)
-
-    for gallery, rows_for in buckets.items():
-        out_dir = REPO / "galleries" / gallery / "images"
-        if out_dir.exists() and args.force:
-            shutil.rmtree(out_dir)
-        out_dir.mkdir(parents=True, exist_ok=True)
-
-        entries = []
-        for i, row in enumerate(rows_for, start=1):
-            src = base / row["source"]
-            stem = f"{i:03d}"
-            entry = write_derivatives(src, out_dir, stem, force=args.force)
-            entry["alt"] = f"{GALLERIES[gallery]} — {stem}"
-            entries.append(entry)
-            print(f"  {gallery}/{stem}  <- {row['source']}")
-
-        write_manifest(gallery, entries)
-        print(f"{gallery}: {len(entries)} photos\n")
-
-    write_cloud_page()
+    note = f", pruned {removed} orphaned file(s)" if removed else ""
+    print(f"  rebuilt gallery/index.html ({len(ordered_photos())} photographs{note})")
     return 0
 
 
@@ -446,11 +386,6 @@ def main() -> int:
 
     p = sub.add_parser("rebuild", help="regenerate gallery pages from manifests")
     p.set_defaults(func=cmd_rebuild)
-
-    p = sub.add_parser("import-legacy", help="one-off import from the old gallery layout")
-    p.add_argument("--mapping", required=True)
-    p.add_argument("--force", action="store_true")
-    p.set_defaults(func=cmd_import_legacy)
 
     args = ap.parse_args()
     return args.func(args)

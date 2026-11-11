@@ -65,34 +65,55 @@
 
 # The old gallery URLs were live and may be linked from elsewhere. Send them to
 # the pages that now hold those photographs rather than to a 404.
+# The three sets the site used to be divided into are gone -- there is one
+# gallery now. Their page URLs go to it; the image paths beneath them must not
+# be caught, which is why these match a trailing slash and not everything.
+[[redirects]]
+  from = "/galleries/black-and-white/"
+  to = "/gallery/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/galleries/colours-street/"
+  to = "/gallery/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/galleries/portraits/"
+  to = "/gallery/"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/galleries/dark-places/*"
-  to = "/galleries/black-and-white/"
+  to = "/gallery/"
   status = 301
 
 [[redirects]]
   from = "/galleries/what-doesnt-leave/*"
-  to = "/galleries/black-and-white/"
+  to = "/gallery/"
   status = 301
 
 [[redirects]]
   from = "/galleries/split-second-ordinary/*"
-  to = "/galleries/black-and-white/"
+  to = "/gallery/"
   status = 301
 
 [[redirects]]
   from = "/galleries/bright-places/*"
-  to = "/galleries/colours-street/"
+  to = "/gallery/"
   status = 301
 
 [[redirects]]
   from = "/galleries/shades-of-snow/*"
-  to = "/galleries/colours-street/"
+  to = "/gallery/"
   status = 301
 
 [[redirects]]
   from = "/galleries/people/*"
-  to = "/galleries/portraits/"
+  to = "/gallery/"
   status = 301
 
 # The About page was retired when the site was reworked; send anyone holding
