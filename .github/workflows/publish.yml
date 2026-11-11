@@ -68,3 +68,19 @@ jobs:
           # new workflow runs for pushes made with GITHUB_TOKEN.
           git commit -m "Update galleries"
           git push
+
+      # Runs after the commit on purpose: a photograph that could not be read
+      # must not stop the ones that could from being published. This turns the
+      # run red so the problem is visible in the Actions tab, with the detail
+      # in incoming/UNREADABLE.txt.
+      - name: Report any upload that could not be read
+        if: always()
+        run: |
+          if [ -f incoming/UNREADABLE.txt ]; then
+            echo "### Some uploads could not be published" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat incoming/UNREADABLE.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat incoming/UNREADABLE.txt
+            exit 1
+          fi

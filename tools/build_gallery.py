@@ -48,10 +48,27 @@ GALLERIES = {
     "portraits": "Portraits",
 }
 
-SOURCE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp"}
+# Files that are never photographs, whatever else turns up in an upload folder.
+IGNORE_NAMES = {"readme.txt", ".gitkeep", ".ds_store", "thumbs.db", "unreadable.txt"}
 
 
 # --- image processing --------------------------------------------------------
+
+def is_photograph(path: Path) -> bool:
+    """Decide by looking inside the file, not at its name.
+
+    A photograph uploaded as "14.1" is still a photograph. Trusting the
+    extension meant such a file was skipped in silence: it stayed in the upload
+    folder, the run went green, and the photographer was never told her picture
+    had not been published.
+    """
+    try:
+        with Image.open(path) as im:
+            im.verify()
+        return True
+    except Exception:                                       # noqa: BLE001
+        return False
+
 
 def load_upright(path: Path) -> Image.Image:
     """Open an image with EXIF rotation already applied.
@@ -239,16 +256,28 @@ def write_gallery_page(gallery: str) -> None:
 def cmd_ingest(args) -> int:
     incoming = REPO / "incoming"
     total = 0
+    rejected: list[str] = []
 
     for gallery in GALLERIES:
         src_dir = incoming / gallery
         if not src_dir.is_dir():
             continue
 
-        photos = sorted(
-            p for p in src_dir.iterdir()
-            if p.suffix.lower() in SOURCE_EXTS and not p.name.startswith(".")
+        candidates = sorted(
+            f for f in src_dir.iterdir()
+            if f.is_file()
+            and f.name.lower() not in IGNORE_NAMES
+            and not f.name.startswith(".")
         )
+        photos = [f for f in candidates if is_photograph(f)]
+
+        # Anything left over is something this tool cannot read. It stays where
+        # it is and gets named in the report, rather than being passed over in
+        # silence.
+        for f in candidates:
+            if f not in photos:
+                rejected.append(f"incoming/{gallery}/{f.name}")
+
         if not photos:
             continue
 
@@ -275,7 +304,27 @@ def cmd_ingest(args) -> int:
         write_manifest(gallery, entries)
         write_gallery_page(gallery)
 
+    report = REPO / "incoming" / "UNREADABLE.txt"
+    if rejected:
+        report.write_text(
+            "These uploads could not be read as photographs, so they are NOT on\n"
+            "the website. They are still in their upload folder.\n\n"
+            + "".join(f"  {r}\n" for r in rejected)
+            + "\nUsually the file is damaged, or is not an image at all (a video,\n"
+              "a PDF, a .zip). Re-export it from Photos or Lightroom and upload it\n"
+              "again, then delete this file.\n"
+        )
+        print(f"\n!! {len(rejected)} upload(s) could not be read:", file=sys.stderr)
+        for r in rejected:
+            print(f"   {r}", file=sys.stderr)
+    elif report.exists():
+        report.unlink()          # previous problem is resolved
+
     print(f"ingested {total} photo(s)")
+    # Exit 0 even when something was rejected, so the photographs that *did*
+    # work still get committed and published. The workflow checks for the
+    # report afterwards and fails the run then, which keeps the red cross
+    # without holding the good uploads hostage.
     return 0
 
 
