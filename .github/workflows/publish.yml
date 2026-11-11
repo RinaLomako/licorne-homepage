@@ -7,7 +7,8 @@ on:
   push:
     paths:
       - "incoming/**"                    # new photos uploaded
-      - "galleries/*/manifest.json"      # a photo removed, reordered or captioned
+      - "galleries/*/manifest.json"      # a photograph removed or captioned
+      - "order.txt"                      # the gallery rearranged
   workflow_dispatch:        # lets you re-run it by hand from the Actions tab
 
 # The job pushes a commit back to the branch, so it needs write access.

@@ -147,109 +147,150 @@ def next_id(entries: list[dict]) -> int:
 
 # --- page generation ---------------------------------------------------------
 
-def nav_html(active: str) -> str:
-    # The gallery cloud on / is the way visitors browse now. These per-gallery
-    # pages are still generated because the manifests drive them and they are a
-    # useful fallback, but nothing links to them and they are not indexed.
-    items = [
-        ("/gallery/", "gallery", "gallery"),
-        ("/contact/", "contact", "contact"),
-    ]
-    return "\n".join(
-        f'      <a href="{href}"{" class=\"active\"" if key == active else ""}>{label}</a>'
-        for href, label, key in items
-    )
+ORDER_FILE = REPO / "order.txt"
+CLOUD_COLUMNS = 2
+ENTRY_RE = __import__("re").compile(r"^([a-z0-9-]+)/(\d+)$")
 
 
-def figure_html(gallery: str, entry: dict) -> str:
-    base = f"/galleries/{gallery}/images"
-    stem = entry["id"]
-    grid = [w for w in entry["widths"] if w in GRID_WIDTHS]
-    largest = max(entry["widths"])
+def read_order() -> tuple[list[str], set[str]]:
+    """Return (wanted order, explicitly hidden).
 
+    A line like `portraits/003` places that photograph. The same line commented
+    out means "keep it on the site but off the page" -- which has to be told
+    apart from an ordinary comment, and has to beat the rule below that shows
+    anything the file forgot to mention. Without that distinction, commenting a
+    photograph out silently did nothing.
+    """
+    wanted: list[str] = []
+    hidden: set[str] = set()
+    if not ORDER_FILE.exists():
+        return wanted, hidden
+
+    for raw in ORDER_FILE.read_text().splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            maybe = line.lstrip("#").strip()
+            if ENTRY_RE.match(maybe):
+                hidden.add(maybe)
+            continue
+        if ENTRY_RE.match(line):
+            wanted.append(line)
+        else:
+            print(f"  order.txt: ignoring unrecognised line {line!r}", file=sys.stderr)
+    return wanted, hidden
+
+
+def ordered_photos() -> list[dict]:
+    """Every photograph on the site, in the order order.txt asks for."""
+    by_key: dict[str, dict] = {}
+    for gallery in GALLERIES:
+        for e in read_manifest(gallery):
+            e = dict(e, gallery=gallery, key=f"{gallery}/{e['id']}")
+            by_key[e["key"]] = e
+
+    wanted, hidden = read_order()
+
+    out: list[dict] = []
+    seen: set[str] = set()
+    for k in wanted:
+        if k in hidden or k in seen:
+            continue
+        if k in by_key:
+            out.append(by_key[k]); seen.add(k)
+        else:
+            print(f"  order.txt: no such photograph {k!r}", file=sys.stderr)
+
+    # A photograph the file never mentions is still shown, at the end, so a new
+    # upload is never invisible. One deliberately hidden is not.
+    for k, e in by_key.items():
+        if k not in seen and k not in hidden:
+            out.append(e)
+    return out
+
+
+def cloud_figure(e: dict) -> str:
+    base = f"/galleries/{e['gallery']}/images"
+    stem = e["id"]
+    grid = [w for w in e["widths"] if w <= 1600] or [max(e["widths"])]
     srcset = ", ".join(f"{base}/{derivative_name(stem, w)} {w}w" for w in grid)
-    fallback = derivative_name(stem, grid[-1] if grid else largest)
-    alt = entry.get("alt") or f"{GALLERIES[gallery]} — {stem}"
-    caption = entry.get("caption", "")
-
-    return f"""      <figure class="shot">
-        <button class="shot-open" type="button"
-                data-full="{base}/{derivative_name(stem, largest)}"
-                data-caption="{caption}"
-                aria-label="View at full quality">
-          <img src="{base}/{fallback}"
+    alt = e.get("alt") or ""
+    return f"""        <figure>
+          <img src="{base}/{derivative_name(stem, grid[-1])}"
                srcset="{srcset}"
-               sizes="(min-width: 900px) 900px, 100vw"
-               width="{entry['width']}" height="{entry['height']}"
+               sizes="(min-width: 620px) 40vw, 44vw"
+               width="{e['width']}" height="{e['height']}"
                loading="lazy" decoding="async"
                alt="{alt}" />
-        </button>
-{f'        <figcaption>{caption}</figcaption>' if caption else ''}
-      </figure>"""
+        </figure>"""
 
 
-def render_gallery(gallery: str) -> str:
-    title = GALLERIES[gallery]
-    entries = read_manifest(gallery)
-    figures = "\n".join(figure_html(gallery, e) for e in entries)
-    count = len(entries)
+def render_cloud() -> str:
+    """The gallery page, with the photographs written into the HTML.
+
+    The columns are balanced here rather than in the browser: each photograph
+    goes into whichever column is currently shortest, which keeps the order
+    readable while packing tightly. Doing it at build time means the page
+    carries real <img> tags, so it works without JavaScript and search engines
+    can see the photographs.
+    """
+    photos = ordered_photos()
+    columns: list[list[str]] = [[] for _ in range(CLOUD_COLUMNS)]
+    heights = [0.0] * CLOUD_COLUMNS
+
+    for e in photos:
+        i = heights.index(min(heights))
+        heights[i] += e["height"] / e["width"]      # relative height in one column
+        columns[i].append(cloud_figure(e))
+
+    cols = "\n".join(
+        '      <div class="cloud-col">\n' + "\n".join(c) + "\n      </div>"
+        for c in columns
+    )
 
     return f"""<!doctype html>
-<!-- GENERATED by tools/build_gallery.py — do not edit by hand. -->
+<!-- GENERATED by tools/build_gallery.py from order.txt - do not edit by hand. -->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="robots" content="noindex, nofollow" />
-  <title>{title} — Ri Lomako</title>
-  <meta name="description" content="{title} photographs by Ri Lomako." />
+  <title>Gallery &mdash; Ri Lomako</title>
+  <meta name="description" content="Photographs by Ri Lomako." />
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <link rel="stylesheet" href="/assets/css/site-v2.css" />
 </head>
 <body>
-  <header class="site-header">
+  <header class="bar">
     <a class="brand" href="/">Ri Lomako</a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav"
-            aria-label="Menu"><span></span><span></span><span></span></button>
-    <nav class="nav" id="nav">
-{nav_html(gallery)}
+    <nav>
+      <a href="/gallery/" aria-current="page">gallery</a>
+      <a href="/contact/">contact</a>
     </nav>
   </header>
 
-  <main class="container">
-    <h1 class="page-title">{title}</h1>
-    <p class="muted small">{count} photograph{'s' if count != 1 else ''}</p>
-
-    <section class="shots">
-{figures}
-    </section>
+  <main class="cloud" id="cloud">
+{cols}
   </main>
 
-  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
-    <button class="lb-btn lb-close" id="lbClose" type="button" aria-label="Close">&times;</button>
-    <button class="lb-btn lb-prev" id="lbPrev" type="button" aria-label="Previous">&#8249;</button>
-    <button class="lb-btn lb-next" id="lbNext" type="button" aria-label="Next">&#8250;</button>
-    <figure class="lb-stage">
-      <img id="lbImg" alt="" />
-      <figcaption class="lb-caption" id="lbCaption"></figcaption>
-    </figure>
-  </div>
-
-  <footer class="site-footer">
+  <footer class="foot">
     <span class="muted small">&copy; Ri Lomako <span data-year></span></span>
   </footer>
 
-  <script src="/assets/js/site.js" defer></script>
-  <script src="/assets/js/gallery.js" defer></script>
+  <script>
+    document.querySelectorAll("[data-year]").forEach(function (el) {{
+      el.textContent = String(new Date().getFullYear());
+    }});
+  </script>
 </body>
 </html>
 """
 
 
-def write_gallery_page(gallery: str) -> None:
-    out = REPO / "galleries" / gallery / "index.html"
+def write_cloud_page() -> None:
+    out = REPO / "gallery" / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_gallery(gallery))
+    out.write_text(render_cloud())
 
 
 # --- commands ----------------------------------------------------------------
@@ -303,7 +344,8 @@ def cmd_ingest(args) -> int:
             total += 1
 
         write_manifest(gallery, entries)
-        write_gallery_page(gallery)
+
+    write_cloud_page()
 
     report = REPO / "incoming" / "UNREADABLE.txt"
     if rejected:
@@ -332,11 +374,10 @@ def cmd_ingest(args) -> int:
 def cmd_rebuild(args) -> int:
     for gallery in GALLERIES:
         entries = read_manifest(gallery)
-        write_gallery_page(gallery)
 
         # Drop derivatives no longer referenced by the manifest. This is what
-        # makes removing a photo work: delete its entry from manifest.json and
-        # its image files go with it on the next rebuild.
+        # makes removing a photograph work: delete its entry from manifest.json
+        # and its image files go with it on the next rebuild.
         wanted = {
             derivative_name(e["id"], w)
             for e in entries
@@ -349,9 +390,11 @@ def cmd_rebuild(args) -> int:
                 if f.is_file() and f.suffix == ".webp" and f.name not in wanted:
                     f.unlink()
                     removed += 1
-
         note = f", pruned {removed} orphaned file(s)" if removed else ""
-        print(f"  rebuilt galleries/{gallery}/index.html ({len(entries)} photos{note})")
+        print(f"  {gallery}: {len(entries)} photos{note}")
+
+    write_cloud_page()
+    print(f"  rebuilt gallery/index.html ({len(ordered_photos())} photographs)")
     return 0
 
 
@@ -385,9 +428,9 @@ def cmd_import_legacy(args) -> int:
             print(f"  {gallery}/{stem}  <- {row['source']}")
 
         write_manifest(gallery, entries)
-        write_gallery_page(gallery)
         print(f"{gallery}: {len(entries)} photos\n")
 
+    write_cloud_page()
     return 0
 
 
