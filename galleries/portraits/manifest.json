@@ -9,7 +9,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 001",
+    "alt": "Portraits — 001",
     "caption": ""
   },
   {
@@ -22,7 +22,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 003",
+    "alt": "Portraits — 003",
     "caption": ""
   },
   {
@@ -35,7 +35,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 004",
+    "alt": "Portraits — 004",
     "caption": ""
   },
   {
@@ -48,7 +48,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 005",
+    "alt": "Portraits — 005",
     "caption": ""
   },
   {
@@ -61,7 +61,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 DSCF8028",
+    "alt": "Portraits — DSCF8028",
     "caption": ""
   },
   {
@@ -74,7 +74,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 2-4",
+    "alt": "Portraits — 2-4",
     "caption": ""
   },
   {
@@ -87,7 +87,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 DSCF8364",
+    "alt": "Portraits — DSCF8364",
     "caption": ""
   },
   {
@@ -100,20 +100,7 @@
       1600,
       2560
     ],
-    "alt": "Portraits \u2014 14",
-    "caption": ""
-  },
-  {
-    "id": "010",
-    "width": 4319,
-    "height": 6479,
-    "widths": [
-      400,
-      800,
-      1600,
-      2560
-    ],
-    "alt": "Portraits \u2014 pipeline-test",
+    "alt": "Portraits — 14",
     "caption": ""
   }
 ]
