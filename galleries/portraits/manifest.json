@@ -102,5 +102,18 @@
     ],
     "alt": "Portraits \u2014 14",
     "caption": ""
+  },
+  {
+    "id": "010",
+    "width": 4319,
+    "height": 6479,
+    "widths": [
+      400,
+      800,
+      1600,
+      2560
+    ],
+    "alt": "Portraits \u2014 pipeline-test",
+    "caption": ""
   }
 ]
