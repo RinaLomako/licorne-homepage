@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gallery — Ri Lomako</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/v2/assets/v2.css" />
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="/v2/">Ri Lomako</a>
+    <nav>
+      <a href="/v2/gallery/" aria-current="page">gallery</a>
+      <a href="/v2/contact/">contact</a>
+    </nav>
+  </header>
+
+  <main class="cloud" id="cloud"></main>
+
+  <footer class="foot">
+    <span class="muted small">&copy; Ri Lomako <span data-year></span></span>
+  </footer>
+
+  <script src="/v2/assets/cloud.js" defer></script>
+  <script>
+    document.querySelectorAll("[data-year]").forEach(function (el) {
+      el.textContent = String(new Date().getFullYear());
+    });
+  </script>
+</body>
+</html>

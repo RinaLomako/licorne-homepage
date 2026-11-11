@@ -1,0 +1,166 @@
+/* ==========================================================================
+   v2 preview — Ri Lomako
+   Shares nothing with the live stylesheet on purpose, so experimenting here
+   cannot affect the published site.
+   ========================================================================== */
+
+:root {
+  --bg: #14161c;
+  --bg-deep: #0a0c11;
+  --text: #e9eaf0;
+  --muted: rgba(233, 234, 240, 0.62);
+  --line: rgba(233, 234, 240, 0.12);
+  --gutter: 18px;
+  --cloud-gap: 10px;        /* the "marge" between photographs */
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+:focus-visible { outline: 2px solid rgba(233,234,240,.4); outline-offset: 3px; }
+
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* --- home ------------------------------------------------------------------
+   The whole page is one link into the gallery. Nothing is written on it but
+   the name and what she does.
+   -------------------------------------------------------------------------- */
+
+.enter {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100svh;
+  min-height: 460px;
+  overflow: hidden;
+  background: var(--bg-deep) center / cover no-repeat;
+  background-image: url("/assets/img/moon.webp");
+  cursor: pointer;
+}
+
+#smoke-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.wordmark {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 var(--gutter);
+  pointer-events: none;          /* let drags reach the dust underneath */
+  text-shadow: 0 2px 30px rgba(0,0,0,.8), 0 0 4px rgba(0,0,0,.6);
+}
+.wordmark h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 4.2rem);
+  font-weight: 300;
+  letter-spacing: 3px;
+}
+.wordmark p {
+  margin: 12px 0 0;
+  font-size: clamp(0.78rem, 2.1vw, 0.95rem);
+  letter-spacing: 4px;
+  text-transform: lowercase;
+  color: rgba(255,255,255,.85);
+}
+
+/* --- inner pages ------------------------------------------------------------ */
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px var(--gutter);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(20,22,28,.9);
+  backdrop-filter: blur(12px);
+}
+.bar .brand { font-size: .95rem; letter-spacing: 1.4px; }
+.bar nav { display: flex; gap: 20px; }
+.bar nav a {
+  font-size: .82rem;
+  letter-spacing: 1.6px;
+  text-transform: lowercase;
+  color: var(--muted);
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+}
+.bar nav a:hover, .bar nav a[aria-current] { color: var(--text); border-bottom-color: rgba(233,234,240,.35); }
+
+/* --- the cloud --------------------------------------------------------------
+   Columns are built in JavaScript rather than with CSS columns: CSS fills one
+   column completely before starting the next, which would scramble the order
+   set in order.txt. Placing each photograph into whichever column is currently
+   shortest keeps the order readable and still packs tightly.
+   -------------------------------------------------------------------------- */
+
+.cloud {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cloud-gap);
+  padding: var(--cloud-gap);
+}
+.cloud-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cloud-gap);
+  min-width: 0;
+}
+.cloud figure { margin: 0; }
+.cloud img {
+  width: 100%;
+  height: auto;
+  background: #1b1e26;
+}
+
+.cloud-empty {
+  padding: 60px var(--gutter);
+  text-align: center;
+  color: var(--muted);
+}
+
+/* --- contact ---------------------------------------------------------------- */
+
+.page { padding: 44px var(--gutter) 80px; max-width: 620px; margin-inline: auto; }
+.page h1 { font-weight: 300; letter-spacing: 1px; font-size: 1.5rem; margin: 0 0 6px; }
+.page .lead { color: rgba(233,234,240,.85); margin: 0 0 34px; }
+.field-group { display: grid; gap: 26px; }
+.field-group .label {
+  font-size: .72rem; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 4px;
+}
+.field-group a { font-size: 1.05rem; }
+
+.foot {
+  padding: 24px var(--gutter) 34px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
