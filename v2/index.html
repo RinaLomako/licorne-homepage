@@ -10,17 +10,36 @@
   <link rel="stylesheet" href="/v2/assets/v2.css" />
 </head>
 <body>
-  <!-- The entire page is the way in: clicking anywhere opens the gallery. -->
-  <a class="enter" href="/v2/gallery/" aria-label="Enter the gallery">
+  <section class="enter">
     <!-- width/height are a fallback so the simulation never initialises
          against a 0x0 canvas if the script runs before the stylesheet has
          been applied. -->
     <canvas id="smoke-canvas" width="1600" height="900" aria-hidden="true"></canvas>
+
+    <!-- Sits above the canvas. Only the links take pointer events, so dragging
+         anywhere else still reaches the dust. -->
+    <nav class="enter-nav">
+      <a href="/v2/gallery/">gallery</a>
+      <a href="/v2/contact/">contact</a>
+    </nav>
+
+    <!-- Covers the page so clicking anywhere opens the gallery, but sits below
+         the nav so those links win where they overlap. -->
+    <a class="enter-hit" href="/v2/gallery/" aria-label="Enter the gallery"></a>
+
     <div class="wordmark">
       <h1>Ri Lomako</h1>
-      <p>photo / styling</p>
+      <p>Photographer &middot; Paris</p>
     </div>
-  </a>
+
+    <!-- Two wordings for one gesture; CSS shows whichever suits the input
+         device. "Press space" means nothing on a phone, and "drag a finger"
+         means nothing with a mouse. -->
+    <p class="hint">
+      <span class="hint-pointer">Click and drag through the dust &mdash; or press space</span>
+      <span class="hint-touch">Drag a finger through the dust</span>
+    </p>
+  </section>
 
   <script src="/assets/js/smoke.js" defer></script>
 </body>

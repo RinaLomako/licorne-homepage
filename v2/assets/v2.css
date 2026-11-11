@@ -41,8 +41,8 @@ img { max-width: 100%; display: block; }
 }
 
 /* --- home ------------------------------------------------------------------
-   The whole page is one link into the gallery. Nothing is written on it but
-   the name and what she does.
+   Clicking anywhere opens the gallery. The only writing is the wordmark, the
+   two nav links, and the hint along the bottom.
    -------------------------------------------------------------------------- */
 
 .enter {
@@ -54,7 +54,6 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
   background: var(--bg-deep) center / cover no-repeat;
   background-image: url("/assets/img/moon.webp");
-  cursor: pointer;
 }
 
 #smoke-canvas {
@@ -65,12 +64,42 @@ img { max-width: 100%; display: block; }
   touch-action: none;
 }
 
+/* The full-page click target. Below the nav in z-order so those links win
+   where they overlap, and above the canvas so a plain click navigates. A drag
+   still reaches the dust because the simulation listens on the window. */
+.enter-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.enter-nav {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  gap: 22px;
+  padding: 20px var(--gutter);
+}
+.enter-nav a {
+  font-size: .82rem;
+  letter-spacing: 1.6px;
+  text-transform: lowercase;
+  color: rgba(255,255,255,.85);
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  text-shadow: 0 1px 14px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.7);
+}
+.enter-nav a:hover { color: #fff; border-bottom-color: rgba(255,255,255,.5); }
+
 .wordmark {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   text-align: center;
   padding: 0 var(--gutter);
-  pointer-events: none;          /* let drags reach the dust underneath */
+  pointer-events: none;          /* clicks fall through to .enter-hit */
   text-shadow: 0 2px 30px rgba(0,0,0,.8), 0 0 4px rgba(0,0,0,.6);
 }
 .wordmark h1 {
@@ -80,11 +109,36 @@ img { max-width: 100%; display: block; }
   letter-spacing: 3px;
 }
 .wordmark p {
-  margin: 12px 0 0;
-  font-size: clamp(0.78rem, 2.1vw, 0.95rem);
-  letter-spacing: 4px;
-  text-transform: lowercase;
-  color: rgba(255,255,255,.85);
+  margin: 14px 0 0;
+  font-size: clamp(0.72rem, 2vw, 0.9rem);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.88);
+}
+
+/* The gesture hint, along the bottom. */
+.hint {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  margin: 0;
+  padding: 0 var(--gutter) 28px;
+  text-align: center;
+  pointer-events: none;
+  font-size: clamp(0.66rem, 1.7vw, 0.78rem);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.8);
+  text-shadow: 0 1px 14px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.7);
+}
+
+/* Default to the mouse wording; swap it on genuine touch devices. */
+.hint-touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .hint-pointer { display: none; }
+  .hint-touch { display: inline; }
 }
 
 /* --- inner pages ------------------------------------------------------------ */
