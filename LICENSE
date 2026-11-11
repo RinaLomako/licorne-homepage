@@ -43,6 +43,13 @@ Applies to:
     incoming/**                 any photograph placed here awaiting processing
                                 (the README.txt notes in those folders are code
                                 under section 1)
+    **/*.jpg  **/*.jpeg         any photograph anywhere in this repository,
+    **/*.tif  **/*.tiff         including one committed to the root by mistake
+    **/*.raf  **/*.dng          while being uploaded
+
+Section 1 covers source code. A photograph is never source code, wherever in
+this repository it happens to sit, and is never offered under the MIT License
+by virtue of its location.
 
 These are NOT covered by the MIT License above.
 

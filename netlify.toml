@@ -34,6 +34,35 @@
   status = 404
   force = true
 
+# The website serves no original photographs at all -- every image it displays
+# is a generated .webp. So any .jpg/.tif reaching the server is a camera file
+# committed by mistake, and serving it would hand out a full-resolution master
+# against the rights reserved in LICENSE. Two were downloadable from the site
+# root for three months before this rule existed.
+[[redirects]]
+  from = "/*.jpg"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/*.jpeg"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/*.tif"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/*.tiff"
+  to = "/"
+  status = 404
+  force = true
+
 # The old gallery URLs were live and may be linked from elsewhere. Send them to
 # the pages that now hold those photographs rather than to a 404.
 [[redirects]]
