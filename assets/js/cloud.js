@@ -22,7 +22,7 @@
   }
 
   Promise.all([
-    fetch("/v2/order.txt", { cache: "no-cache" }).then(function (r) { return r.ok ? r.text() : ""; }),
+    fetch("/order.txt", { cache: "no-cache" }).then(function (r) { return r.ok ? r.text() : ""; }),
     Promise.all(GALLERIES.map(function (g) {
       return fetch("/galleries/" + g + "/manifest.json", { cache: "no-cache" })
         .then(function (r) { return r.ok ? r.json() : []; })

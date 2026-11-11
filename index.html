@@ -3,57 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Yekaterina Lomako — Photography</title>
-  <meta name="description" content="Photography by Yekaterina Lomako. Black and white, colour and street, portraits." />
+  <title>Ri Lomako</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
   <link rel="preload" as="image" href="/assets/img/moon.webp" />
-  <link rel="stylesheet" href="/assets/css/styles.css" />
-  <style>
-    /* Only the homepage needs the backdrop, so it lives here rather than in
-       the shared stylesheet. */
-    .splash { background-image: url("/assets/img/moon.webp"); }
-  </style>
+  <link rel="stylesheet" href="/assets/css/site-v2.css" />
 </head>
-<body class="home">
-  <header class="site-header">
-    <a class="brand" href="/">Yekaterina Lomako</a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav"
-            aria-label="Menu"><span></span><span></span><span></span></button>
-    <nav class="nav" id="nav">
-      <a href="/galleries/black-and-white/">Black &amp; White</a>
-      <a href="/galleries/colours-street/">Colours / Street</a>
-      <a href="/galleries/portraits/">Portraits</a>
-      <a href="/about/">About</a>
-      <a href="/contact/">Contact</a>
-    </nav>
-  </header>
+<body>
+  <section class="enter">
+    <!-- width/height are a fallback so the simulation never initialises
+         against a 0x0 canvas if the script runs before the stylesheet has
+         been applied. -->
+    <canvas id="smoke-canvas" width="1600" height="900" aria-hidden="true"></canvas>
 
-  <section class="splash" aria-label="Moon">
-    <!-- The width/height attributes are a fallback, not the display size (CSS
-         stretches it to fill). They guarantee a non-zero drawing buffer if the
-         script runs before the external stylesheet has been applied — without
-         them the simulation initialises against a 0x0 canvas and every
-         framebuffer fails. resizeCanvas() corrects to the real size on the
-         first animation frame. -->
-    <canvas id="smoke-canvas" width="1600" height="900"></canvas>
-    <div class="splash-inner">
-      <h1>Yekaterina Lomako</h1>
-      <p class="tagline">Photographer &middot; Paris</p>
-      <!-- Two wordings for the same gesture; CSS shows whichever suits the
-           input device. "Press space" is meaningless on a phone, and "drag a
-           finger" is meaningless with a mouse. -->
-      <p class="hint">
-        <span class="hint-pointer">Click and drag through the dust &mdash; or press space</span>
-        <span class="hint-touch">Drag a finger through the dust</span>
-      </p>
+    <!-- The only clickable things on this page. There is deliberately no
+         full-page link: it swallowed the mouse drag, and the dust is the
+         point of the homepage. -->
+    <nav class="enter-nav">
+      <a href="/gallery/">gallery</a>
+      <a href="/contact/">contact</a>
+    </nav>
+
+    <div class="wordmark">
+      <h1>Ri Lomako</h1>
+      <p>Photographer &middot; Paris</p>
     </div>
+
+    <!-- Two wordings for one gesture; CSS shows whichever suits the input
+         device. "Press space" means nothing on a phone, and "drag a finger"
+         means nothing with a mouse. -->
+    <p class="hint">
+      <span class="hint-pointer">Click and drag through the dust &mdash; or press space</span>
+      <span class="hint-touch">Drag a finger through the dust</span>
+    </p>
   </section>
 
-  <footer class="site-footer">
-    <span class="muted small">&copy; Yekaterina Lomako <span data-year></span></span>
-  </footer>
-
-  <script src="/assets/js/site.js" defer></script>
   <script src="/assets/js/smoke.js" defer></script>
 </body>
 </html>

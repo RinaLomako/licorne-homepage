@@ -95,6 +95,13 @@
   to = "/galleries/portraits/"
   status = 301
 
+# The About page was retired when the site was reworked; send anyone holding
+# the old link to the homepage rather than a 404.
+[[redirects]]
+  from = "/about/*"
+  to = "/"
+  status = 301
+
 # The contacts page was renamed to the singular.
 [[redirects]]
   from = "/contacts/*"

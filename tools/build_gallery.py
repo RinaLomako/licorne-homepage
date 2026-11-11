@@ -148,12 +148,12 @@ def next_id(entries: list[dict]) -> int:
 # --- page generation ---------------------------------------------------------
 
 def nav_html(active: str) -> str:
+    # The gallery cloud on / is the way visitors browse now. These per-gallery
+    # pages are still generated because the manifests drive them and they are a
+    # useful fallback, but nothing links to them and they are not indexed.
     items = [
-        ("/galleries/black-and-white/", "Black &amp; White", "black-and-white"),
-        ("/galleries/colours-street/", "Colours / Street", "colours-street"),
-        ("/galleries/portraits/", "Portraits", "portraits"),
-        ("/about/", "About", "about"),
-        ("/contact/", "Contact", "contact"),
+        ("/gallery/", "gallery", "gallery"),
+        ("/contact/", "contact", "contact"),
     ]
     return "\n".join(
         f'      <a href="{href}"{" class=\"active\"" if key == active else ""}>{label}</a>'
@@ -200,14 +200,15 @@ def render_gallery(gallery: str) -> str:
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{title} — Yekaterina Lomako</title>
-  <meta name="description" content="{title} photographs by Yekaterina Lomako." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{title} — Ri Lomako</title>
+  <meta name="description" content="{title} photographs by Ri Lomako." />
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/assets/css/styles.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/">Yekaterina Lomako</a>
+    <a class="brand" href="/">Ri Lomako</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav"
             aria-label="Menu"><span></span><span></span><span></span></button>
     <nav class="nav" id="nav">
@@ -235,7 +236,7 @@ def render_gallery(gallery: str) -> str:
   </div>
 
   <footer class="site-footer">
-    <span class="muted small">&copy; Yekaterina Lomako <span data-year></span></span>
+    <span class="muted small">&copy; Ri Lomako <span data-year></span></span>
   </footer>
 
   <script src="/assets/js/site.js" defer></script>
