@@ -16,16 +16,13 @@
          been applied. -->
     <canvas id="smoke-canvas" width="1600" height="900" aria-hidden="true"></canvas>
 
-    <!-- Sits above the canvas. Only the links take pointer events, so dragging
-         anywhere else still reaches the dust. -->
+    <!-- The only clickable things on this page. There is deliberately no
+         full-page link: it swallowed the mouse drag, and the dust is the
+         point of the homepage. -->
     <nav class="enter-nav">
       <a href="/v2/gallery/">gallery</a>
       <a href="/v2/contact/">contact</a>
     </nav>
-
-    <!-- Covers the page so clicking anywhere opens the gallery, but sits below
-         the nav so those links win where they overlap. -->
-    <a class="enter-hit" href="/v2/gallery/" aria-label="Enter the gallery"></a>
 
     <div class="wordmark">
       <h1>Ri Lomako</h1>

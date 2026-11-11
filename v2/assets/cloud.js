@@ -8,12 +8,11 @@
   var mount = document.getElementById("cloud");
   if (!mount) return;
 
+  // Two columns at every width, matching the reference site: it stays two
+  // across from phone to wide desktop, and the side margin grows with the
+  // viewport rather than the column count.
   function columnCount() {
-    var w = window.innerWidth;
-    if (w < 620) return 2;
-    if (w < 1000) return 3;
-    if (w < 1500) return 4;
-    return 5;
+    return 2;
   }
 
   function parseOrder(text) {

@@ -11,7 +11,7 @@
   --muted: rgba(233, 234, 240, 0.62);
   --line: rgba(233, 234, 240, 0.12);
   --gutter: 18px;
-  --cloud-gap: 10px;        /* the "marge" between photographs */
+  --cloud-gap: 12px;        /* the "marge" between photographs */
 }
 
 * { box-sizing: border-box; }
@@ -64,16 +64,6 @@ img { max-width: 100%; display: block; }
   touch-action: none;
 }
 
-/* The full-page click target. Below the nav in z-order so those links win
-   where they overlap, and above the canvas so a plain click navigates. A drag
-   still reaches the dust because the simulation listens on the window. */
-.enter-hit {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  cursor: pointer;
-}
-
 .enter-nav {
   position: absolute;
   top: 0;
@@ -99,7 +89,7 @@ img { max-width: 100%; display: block; }
   z-index: 3;
   text-align: center;
   padding: 0 var(--gutter);
-  pointer-events: none;          /* clicks fall through to .enter-hit */
+  pointer-events: none;          /* never intercept a drag */
   text-shadow: 0 2px 30px rgba(0,0,0,.8), 0 0 4px rgba(0,0,0,.6);
 }
 .wordmark h1 {
@@ -175,11 +165,18 @@ img { max-width: 100%; display: block; }
    shortest keeps the order readable and still packs tightly.
    -------------------------------------------------------------------------- */
 
+/* The side margin is a percentage, so it opens up as the window widens
+   instead of the layout adding columns. Measured from the reference: the
+   photographs occupy about 81% of a desktop viewport and 89% of a phone. */
 .cloud {
   display: flex;
   align-items: flex-start;
   gap: var(--cloud-gap);
-  padding: var(--cloud-gap);
+  padding: 5.5% 5.5% 7%;
+}
+
+@media (min-width: 620px) {
+  .cloud { padding: 4% 9.5% 6%; }
 }
 .cloud-col {
   flex: 1 1 0;
