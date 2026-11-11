@@ -7,7 +7,6 @@
 # Lines are  gallery/number  and must match a photograph that exists.
 
 # --- black-and-white (31) ---
-portraits/005
 black-and-white/001
 black-and-white/002
 black-and-white/003
@@ -68,6 +67,7 @@ colours-street/022
 portraits/001
 portraits/003
 portraits/004
+portraits/005
 portraits/006
 portraits/007
 portraits/008
