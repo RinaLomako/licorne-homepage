@@ -210,6 +210,56 @@ img { max-width: 100%; display: block; }
 }
 .field-group a { font-size: 1.05rem; }
 
+/* --- bio and education -------------------------------------------------- */
+
+.block {
+  margin-top: 52px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.block h2 {
+  margin: 0 0 18px;
+  font-size: .72rem;
+  font-weight: 400;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.block p {
+  margin: 0 0 1em;
+  max-width: 54ch;           /* a comfortable line length for reading */
+  color: rgba(233, 234, 240, .88);
+}
+.block p:last-child { margin-bottom: 0; }
+
+/* Education: a year column beside each entry, stacking on a narrow screen
+   where two columns would leave the entries too cramped. */
+.cv {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px 20px;
+}
+.cv dt {
+  color: var(--muted);
+  font-size: .82rem;
+  letter-spacing: .6px;
+}
+.cv dd {
+  margin: 0 0 14px;
+  color: rgba(233, 234, 240, .88);
+}
+.cv dd:last-of-type { margin-bottom: 0; }
+
+@media (min-width: 560px) {
+  .cv {
+    grid-template-columns: 7.5rem 1fr;
+    gap: 0 24px;
+  }
+  .cv dt { padding-top: 1px; }
+  .cv dd { margin-bottom: 16px; }
+}
+
 .foot {
   padding: 24px var(--gutter) 34px;
   border-top: 1px solid var(--line);
