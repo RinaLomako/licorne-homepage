@@ -25,6 +25,7 @@ Every command is safe to re-run; existing derivatives are skipped unless
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import sys
@@ -86,12 +87,30 @@ def load_upright(path: Path) -> Image.Image:
     return im.convert("RGB")
 
 
-def derivative_name(stem: str, width: int) -> str:
-    return f"{stem}-{width}.webp"
+def source_fingerprint(path: Path) -> str:
+    """A short digest of the original file.
+
+    It goes into every derivative's filename so that two different photographs
+    can never share a URL. The images are served with a one-year immutable
+    cache, which tells browsers not even to check for a new version -- a
+    promise that is only safe if a changed photograph means a changed name.
+    Reusing id 001 for a different picture once broke exactly that, and
+    visitors kept seeing whichever sizes their browser had already stored.
+    """
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:8]
+
+
+def derivative_name(stem: str, width: int, fp: str = "") -> str:
+    return f"{stem}-{width}.{fp}.webp" if fp else f"{stem}-{width}.webp"
 
 
 def write_derivatives(src: Path, out_dir: Path, stem: str, force: bool = False) -> dict:
     """Write every size tier for one photo. Returns its manifest entry."""
+    fp = source_fingerprint(src)
     im = load_upright(src)
     full_w, full_h = im.size
 
@@ -105,7 +124,7 @@ def write_derivatives(src: Path, out_dir: Path, stem: str, force: bool = False) 
 
     written = []
     for w in widths:
-        target = out_dir / derivative_name(stem, w)
+        target = out_dir / derivative_name(stem, w, fp)
         if target.exists() and not force:
             written.append(w)
             continue
@@ -117,6 +136,7 @@ def write_derivatives(src: Path, out_dir: Path, stem: str, force: bool = False) 
 
     return {
         "id": stem,
+        "fp": fp,
         "width": full_w,
         "height": full_h,
         "widths": sorted(written),
@@ -212,10 +232,11 @@ def cloud_figure(e: dict) -> str:
     base = f"/galleries/{GALLERY}/images"
     stem = e["id"]
     grid = [w for w in e["widths"] if w <= 1600] or [max(e["widths"])]
-    srcset = ", ".join(f"{base}/{derivative_name(stem, w)} {w}w" for w in grid)
+    fp = e.get("fp", "")
+    srcset = ", ".join(f"{base}/{derivative_name(stem, w, fp)} {w}w" for w in grid)
     alt = e.get("alt") or ""
     return f"""        <figure>
-          <img src="{base}/{derivative_name(stem, grid[-1])}"
+          <img src="{base}/{derivative_name(stem, grid[-1], fp)}"
                srcset="{srcset}"
                sizes="(min-width: 620px) 40vw, 44vw"
                width="{e['width']}" height="{e['height']}"
@@ -365,7 +386,7 @@ def cmd_rebuild(args) -> int:
 
     # Drop derivatives no longer referenced by the manifest: deleting a
     # photograph's entry takes its image files with it.
-    wanted = {derivative_name(e["id"], w) for e in entries for w in e["widths"]}
+    wanted = {derivative_name(e["id"], w, e.get("fp", "")) for e in entries for w in e["widths"]}
     images = REPO / "galleries" / GALLERY / "images"
     removed = 0
     if images.is_dir():

@@ -8,9 +8,15 @@
   publish = "."
   command = ""
 
-# Long-lived caching for the generated photo derivatives. Their filenames carry
-# the pixel width and are never rewritten in place — a changed photo gets a new
-# name — so they are safe to cache hard.
+# Long-lived caching for the generated photo derivatives. Each filename carries
+# a fingerprint of the original photograph, so a different picture can never
+# reuse a URL and "immutable" is a promise we can actually keep.
+#
+# This was not always true: the names used to be just id and width, and when the
+# gallery was replaced the ids started again from 001. The same URLs then served
+# different photographs, and anyone who had seen the old site kept being shown
+# whichever sizes their browser had already stored -- the picture changing when
+# they turned their phone, because a different width was requested.
 [[headers]]
   for = "/galleries/*/images/*"
   [headers.values]
