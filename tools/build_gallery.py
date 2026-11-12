@@ -32,6 +32,11 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
+# Pillow refuses images over ~89 megapixels by default, as a guard against
+# maliciously crafted files. These are the photographer's own cameras and
+# scans -- one of hers is 131 MP -- so the guard only gets in the way.
+Image.MAX_IMAGE_PIXELS = None
+
 # --- configuration -----------------------------------------------------------
 
 REPO = Path(__file__).resolve().parent.parent
